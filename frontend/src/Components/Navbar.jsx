@@ -59,12 +59,12 @@ export default function Navbar() {
 
         {/* Action Items */}
         <div className="flex items-center gap-8 ml-6">
-          <div className="flex items-center gap-1.5 group cursor-pointer">
+          <NavLink to="/login" className="flex items-center gap-1.5 group cursor-pointer">
             <IoMdContact className="text-gray-500 text-2xl group-hover:text-blue-600 transition-colors" />
             <span className="hidden sm:inline text-sm font-semibold text-gray-600 group-hover:text-blue-600">
               Login
             </span>
-          </div>
+          </NavLink>
 
           <div className="relative flex items-center gap-2 cursor-pointer group">
             <div className="relative p-2 rounded-full group-hover:bg-blue-50 transition-colors">

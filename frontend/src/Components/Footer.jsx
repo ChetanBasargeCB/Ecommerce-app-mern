@@ -26,7 +26,7 @@ export default function Footer() {
       {/* 2. Main Content Area */}
       <div className="max-w-7xl mx-auto px-8 py-16 flex flex-col md:flex-row justify-between gap-12">
         <div className="flex-1 space-y-4">
-          <h1 className="text-3xl font-black italic text-blue-600">ShopCart</h1>
+          <h1 className="text-3xl font-black italic text-blue-600">Choice Basket</h1>
           <p className="text-sm text-gray-500 max-w-xs">Premium products delivered to your doorstep.</p>
           
           <div className="flex gap-4 text-gray-400">
@@ -65,7 +65,7 @@ export default function Footer() {
       {/* 3. Bottom Copyright */}
       <div className="border-t border-gray-100 py-6 text-[10px] font-bold text-gray-400 tracking-widest uppercase">
         <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p>© 2026 SHOPCART INDIA. MADE BY CHETAN BASARGE  ❤️</p>
+          <p>© 2026 CHOICE BASKET INDIA. MADE BY CHETAN BASARGE  ❤️</p>
           <div className="flex gap-8">
             <Link to="#">Privacy Policy</Link>
             <Link to="#">Terms of Service  @ecart 2026</Link>

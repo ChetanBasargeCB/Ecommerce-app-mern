@@ -8,6 +8,8 @@ import Home from "./Pages/Home";
 import Shop from "./Pages/Shop";
 import AppLayout from "./Components/AppLayout";
 import Deals from "./Pages/Deals";
+import Login from "./Pages/Login";
+import Register from "./Pages/Register";
 
 function App() {
   // Router
@@ -27,6 +29,14 @@ function App() {
         {
           path:"/deals",
           element:<Deals/>
+        },
+        {
+          path:"/login",
+          element:<Login/>
+        },
+        {
+          path:"/register",
+          element:<Register/>
         }
       ],
     },
