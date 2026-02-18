@@ -1,6 +1,3 @@
-#Package files
-package.json
-pakage-lock.json
 
-node_modules
+node_modules/
 .env
