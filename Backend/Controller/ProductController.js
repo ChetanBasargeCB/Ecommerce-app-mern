@@ -1,10 +1,14 @@
 import Product from "../Model/productModel.js"
 
 
-// get all product 
+// get all product  with pagination
 export const getProductController = async(req,res)=>{
+    const page = parseInt(req.query.page) || 10
+    const limit = parseInt(req.query.limit) || 8
+    const skip = (page-1)*limit
+    // console.log("pagination", page,limit)
     try {
-        const data = await Product.find().limit(20).skip(20)
+        const data = await Product.find().limit(limit).skip(skip)
         if(!data) return res.status(500).json({message:"Server error"})
 
         return res.json({data})

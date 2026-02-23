@@ -52,7 +52,7 @@ export default function Login() {
       [name]: value,
     }));
   };
-
+             
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 md:p-10 pt-24">
       <Toaster />
