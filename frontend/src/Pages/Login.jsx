@@ -54,8 +54,7 @@ export default function Login() {
         body: JSON.stringify(data),
       });
 
-      const result = await resp.json(); // Await the JSON parsing
-      localStorage.setItem("token",result.token)
+   
 
       if (resp.ok) {
         setLoading(false);
