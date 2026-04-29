@@ -54,7 +54,8 @@ export default function Login() {
         body: JSON.stringify(data),
       });
 
-      const info = await resp.json(); // Await the JSON parsing
+      const result = await resp.json(); // Await the JSON parsing
+      localStorage.setItem("token",result.token)
 
       if (resp.ok) {
         setLoading(false);
@@ -66,7 +67,7 @@ export default function Login() {
 
       if (resp.status === 404 || resp.status === 401) {
         setLoading(false);
-        toast.error(info.message || "Invalid Credentials");
+        toast.error(result.message || "Invalid Credentials");
         return;
       }
     } catch (err) {

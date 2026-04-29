@@ -5,19 +5,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
-  const [isLogged, setIsLogged] = useState(false);
   const navigate = useNavigate();
-
-  // Check for token on component mount
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLogged(true); // Sets to true if token exists, false if null
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token"); // Removes only the token
-    setIsLogged(false);
-  };
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -28,17 +16,21 @@ export default function Navbar() {
   return (
     <nav className="flex justify-center items-center h-16 border-b border-gray-100 bg-white/80 backdrop-blur-md fixed top-0 w-full z-50 shadow-sm">
       <div className="flex w-full max-w-7xl px-8 justify-between items-center">
-        
         {/* Logo Section */}
         <div className="shrink-0 cursor-pointer group">
-          <NavLink to="/" className="flex items-center text-xl font-black tracking-tighter text-gray-900">
+          <NavLink
+            to="/"
+            className="flex items-center text-xl font-black tracking-tighter text-gray-900"
+          >
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-yellow-300 shadow-sm transition-transform group-hover:scale-105 group-hover:bg-blue-700">
               CB
             </span>
 
             <div className="ml-3 flex flex-col leading-none">
               <span className="text-lg text-gray-900">Choice</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600">Basket</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+                Basket
+              </span>
             </div>
           </NavLink>
         </div>
@@ -74,7 +66,6 @@ export default function Navbar() {
 
         {/* Action Items */}
         <div className="flex items-center gap-8 ml-6">
-          
           {/* Account Dropdown on Hover */}
           <div className="relative group py-4">
             <div className="flex items-center gap-1.5 cursor-pointer">
@@ -88,24 +79,12 @@ export default function Navbar() {
             {/* Dropdown Menu */}
             <div className="absolute right-0 top-full w-40 bg-white border border-gray-100 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               <div className="p-2 flex flex-col gap-1">
-                {isLogged ? (
-                  <>
-                    <NavLink to="/profile" className="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Profile</NavLink>
-                    <button 
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md font-medium"
-                    >
-                      {isLogged?"Logout":"LogIn"}
-                    </button>
-                  </>
-                ) : (
-                  <NavLink 
-                    to="/login" 
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md font-medium"
-                  >
-                    Login
-                  </NavLink>
-                )}
+                <NavLink
+                  to="/profile"
+                  className="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md"
+                >
+                  Profile
+                </NavLink>
               </div>
             </div>
           </div>

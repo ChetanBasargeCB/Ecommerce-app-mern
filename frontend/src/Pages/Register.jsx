@@ -69,7 +69,7 @@ export default function Register() {
       if (resp.ok) {
         toast.success("Account Created");
         setLoading(false);
-        setTimeout(() => { navigate("/login"); }, 2500);
+        setTimeout(() => { navigate("/login"); }, 3000);
       }
 
       const info = await resp.json();

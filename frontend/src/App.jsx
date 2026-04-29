@@ -10,6 +10,7 @@ import AppLayout from "./Components/AppLayout";
 import Deals from "./Pages/Deals";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
+import Profile from "./Pages/Profile";
 
 
 function App() {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
         path: "register",
         element: <Register />,
       },
+      {
+        path:"profile",
+        element:<Profile/>
+      }
     ],
   },
 ]);
