@@ -1,161 +1,164 @@
 import React, { useState } from "react";
-import loginImg from "../assets/login.png";
-import toast, { Toaster } from "react-hot-toast";
-import {
-  HiOutlineMail,
-  HiOutlineLockClosed,
-  HiOutlineEye,
-  HiOutlineEyeOff,
-} from "react-icons/hi";
-import { RiLoginCircleLine } from "react-icons/ri";
-import { NavLink, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Navigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+
+// --- VALIDATION LOGIC ---
+function Validation(email, password) {
+  let errors = { email: "", password: "", status: true };
+
+  if (!email) {
+    errors.email = "Email is required";
+    errors.status = false;
+  }
+  if (!password) {
+    errors.password = "Password is required";
+    errors.status = false;
+  }
+  return errors;
+}
 
 export default function Login() {
-  const [showPass, setShowPass] = useState(false);
   const [data, setData] = useState({ email: "", password: "" });
-  
-  const navigate = useNavigate()
+  const [showpassword, setShowpassword] = useState(false);
+  const [error, setError] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const navigate = useNavigate();
+
+  const handelInput = (e) => {
+    const { name, value } = e.target;
+    setData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (error[name]) setError(prev => ({ ...prev, [name]: "" }));
+  };
+
+  const handelSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", data);
-    if (data.password === "") return toast.error("Password is requred");
+    const validate = Validation(data.email, data.password);
+    
+    if (!validate.status) {
+      setError({
+        email: validate.email,
+        password: validate.password,
+      });
+      return;
+    }
 
     try {
-      const user = { email: data.email, password: data.password };
-      const res = await fetch("http://localhost:3000/user/login",{
-        method:"POST",
-        credentials:"include",
-        headers:{
-         "content-type":"Application/json"
-        }
+      setLoading(true);
+      const resp = await fetch("http://localhost:3000/user/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "Application/json" },
+        body: JSON.stringify(data),
       });
-      toast.success(res.data.message);
-      setData({ email: "", password: "" });
 
-      setTimeout(() => {
-        navigate("/")
-      }, 1500);
+      const info = await resp.json(); // Await the JSON parsing
 
-    } catch (err) {
-      console.log(err);
-      if (err.response) {
-        const status = err.response.status; 
-        if(status===401) return toast.error("Invalid Credential")
-        if(status===400) return toast.error("Bad Request")
+      if (resp.ok) {
+        setLoading(false);
+        toast.success("Login Successful");
+        return setTimeout(() => {
+          navigate("/")
+        }, 3000);;
       }
 
-      toast.error("Server error");
+      if (resp.status === 404 || resp.status === 401) {
+        setLoading(false);
+        toast.error(info.message || "Invalid Credentials");
+        return;
+      }
+    } catch (err) {
+      setLoading(false);
+      toast.error("Login Error");
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-             
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 md:p-10 pt-24">
-      <Toaster />
-      {/* Centered Login Card */}
-      <div className="bg-white w-full max-w-4xl rounded-lg shadow-2xl overflow-hidden flex flex-col md:row lg:flex-row border border-gray-100">
-        {/* Left Section: Image/Branding */}
-        <div className="hidden md:flex md:w-1/2 bg-blue-600 p-12 flex-col justify-center items-center text-white relative">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 lg:p-8">
+      <ToastContainer/>
+      <div className="flex w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden min-h-125">
+        
+        {/* LEFT SIDE: BRANDING */}
+        <div className="hidden lg:flex w-[40%] bg-indigo-600 p-10 text-white flex-col justify-between relative">
           <div className="relative z-10">
-            <h2 className="text-4xl font-black mb-4 tracking-tighter">
-              Welcome!
-            </h2>
-            <p className="text-blue-100 mb-8 font-medium">
-              Log in to ChoiceBasket to access your account and start shopping.
-            </p>
-            <img
-              src={loginImg}
-              alt="login graphic"
-              className="w-full h-auto drop-shadow-2xl hover:scale-105 transition-transform duration-700"
-            />
+            <Link to={"/"} className="text-sm font-medium opacity-80 hover:opacity-100 transition-opacity">
+              &lt; Home Page
+            </Link>
           </div>
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-300 rounded-lg blur-3xl opacity-30"></div>
+
+          <div className="relative z-10 mb-20">
+            <h1 className="text-5xl font-bold leading-tight mb-4">Welcome Back</h1>
+            <p className="text-indigo-100 mb-6">Don't have an account yet?</p>
+            <Link to={"/register"} className="px-8 py-2 border border-white rounded-full hover:bg-white hover:text-indigo-600 transition-all font-medium inline-block">
+              Sign up
+            </Link>
+          </div>
+
+          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-indigo-500 rounded-full opacity-50"></div>
         </div>
 
-        {/* Right Section: The Form */}
-        <div className="w-full md:w-1/2 p-8 md:p-16">
-          <div className="mb-10 text-center md:text-left">
-            <h1 className="text-3xl font-black text-gray-900">Sign In</h1>
-            <p className="text-gray-500 mt-2 font-medium">
-              Enter your details below
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Input */}
-            <div className="space-y-2">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] ml-1">
-                Email
-              </label>
-              <div className="relative group">
-                <HiOutlineMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors text-xl" />
+        {/* RIGHT SIDE: THE FORM */}
+        <div className="w-full lg:w-[60%] p-8 sm:p-12 flex flex-col justify-center">
+          <div className="max-w-sm mx-auto w-full">
+            <h2 className="text-3xl font-bold text-indigo-700 text-center mb-8">Login</h2>
+            
+            <form onSubmit={handelSubmit} className="space-y-6">
+              {/* Email */}
+              <div>
+                <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Email Address</label>
                 <input
-                  required
                   name="email"
                   type="email"
+                  placeholder="name@company.com"
+                  onChange={handelInput}
                   value={data.email}
-                  onChange={handleChange}
-                  placeholder="user@choicebasket.com"
-                  className="w-full bg-gray-50 border border-gray-100 py-4 pl-12 pr-4 rounded-lg focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all outline-none font-medium text-sm"
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border outline-none transition-all ${error.email ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-indigo-400'}`}
                 />
+                {error.email && <p className="text-red-500 text-[10px] mt-1 font-semibold">{error.email}</p>}
               </div>
-            </div>
 
-            {/* Password Input */}
-            <div className="space-y-2">
-              <label className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] ml-1">
-                Password
-              </label>
-              <div className="relative group">
-                <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors text-xl" />
-                <input
-                  name="password"
-                  type={showPass ? "text" : "password"}
-                  value={data.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="w-full bg-gray-50 border border-gray-100 py-4 pl-12 pr-12 rounded-lg focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all outline-none font-medium text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 p-1"
-                >
-                  {showPass ? (
-                    <HiOutlineEyeOff size={22} />
-                  ) : (
-                    <HiOutlineEye size={22} />
-                  )}
-                </button>
+              {/* Password */}
+              <div>
+                <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Password</label>
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showpassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    onChange={handelInput}
+                    value={data.password}
+                    className={`w-full mt-1 px-4 py-2.5 rounded-xl border outline-none transition-all ${error.password ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-indigo-400'}`}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowpassword(!showpassword)} 
+                    className="absolute right-3 top-3.5 text-gray-400 hover:text-indigo-600 transition-colors"
+                  >
+                    {showpassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                  </button>
+                </div>
+                {error.password && <p className="text-red-500 text-[10px] mt-1 font-semibold">{error.password}</p>}
               </div>
-            </div>
 
-            <button className="w-full bg-blue-600 hover:bg-black text-white py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-3 shadow-xl shadow-blue-100 transition-all transform hover:-translate-y-1 active:scale-95 uppercase tracking-widest">
-              <RiLoginCircleLine size={20} /> Login to Account
-            </button>
-          </form>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" id="remember" className="w-4 h-4 accent-indigo-600 rounded border-gray-300" />
+                  <label htmlFor="remember" className="text-xs text-gray-500">Remember me</label>
+                </div>
+                <button type="button" className="text-xs text-indigo-600 font-semibold hover:underline">Forgot password?</button>
+              </div>
 
-          {/* Footer Link */}
-          <div className="mt-10 text-center">
-            <p className="text-sm text-gray-500 font-medium">
-              New to ChoiceBasket?{" "}
-              <NavLink
-                to="/register"
-                className="text-blue-600 font-black hover:underline underline-offset-4"
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-indigo-600 text-white py-3 rounded-xl text-lg font-bold shadow-lg hover:bg-indigo-700 active:scale-95 transition-all mt-2 disabled:bg-indigo-400"
               >
-                Create Account
-              </NavLink>
-            </p>
+                {loading ? "Logging in..." : "Login"}
+              </button>
+            </form>
           </div>
         </div>
       </div>
