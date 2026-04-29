@@ -1,8 +1,7 @@
+import dotenv from 'dotenv/config'
 import mongoose from 'mongoose'
-import dotenv from 'dotenv'
-dotenv.config()
 
- export const ConnnetDB = async ()=>{
+ const ConnectDB = async ()=>{
     try {
         await mongoose.connect(process.env.URI)
         console.log("Database Connected")
@@ -10,6 +9,6 @@ dotenv.config()
         console.log("data base Connection err",error) 
     }
 }
-console.log(process.env.URI)
 
 
+export default ConnectDB

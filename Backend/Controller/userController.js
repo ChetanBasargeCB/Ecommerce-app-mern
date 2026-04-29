@@ -88,3 +88,17 @@ export const ProfileController = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 }
+
+// log out controller
+ 
+export const logoutController = (req, res) => {
+   
+    res.clearCookie("token", {
+        httpOnly: true,
+        sameSite: "strict",
+        secure:false, 
+        
+    });
+
+    return res.status(200).json({ message: "Logged out successfully" });
+};
