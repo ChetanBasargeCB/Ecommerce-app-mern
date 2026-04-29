@@ -6,7 +6,6 @@ import { FiShoppingCart, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-// --- FIXED SWIPER IMPORTS ---
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';

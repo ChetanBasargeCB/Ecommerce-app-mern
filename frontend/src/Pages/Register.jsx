@@ -1,170 +1,186 @@
-import React, { useState } from "react";
-import registerImg from "../assets/register.png";
-import toast, { Toaster } from "react-hot-toast";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
-import { HiOutlineMail, HiOutlineLockClosed, HiOutlineUser, HiOutlinePhone, HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
-import { RiUserAddLine } from "react-icons/ri";
+import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link, useNavigate } from 'react-router-dom';
+
+// --- UPDATED VALIDATION LOGIC ---
+const validation = (name, email, phone, password) => {
+  let errors = { name: "", email: "", phone: "", password: "", status: true };
+  
+  if (!name) { errors.name = "Full name is required"; errors.status = false; }
+  if (!email) { errors.email = "Email is required"; errors.status = false; }
+
+  
+  // Password Validation: 6+ chars, 1 digit, 1 special char
+  const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/;
+  if (!password) { 
+    errors.password = "Password is required"; 
+    errors.status = false; 
+  } else if (!passwordRegex.test(password)) {
+    errors.password = "Must be 6+ chars with 1 digit and 1 special character";
+    errors.status = false;
+  }
+
+  // Phone number validation
+  if(!phone){
+     errors.phone = "Phone is required"; errors.status = false; 
+
+  } else if (phone.length!=10 || phone.length>10){
+     errors.phone = "Phone is number must be 10 digit only"; errors.status = false; 
+  }
+
+  return errors;
+}
 
 export default function Register() {
-  const [data, setData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    re_pass: "",
-  });
-  const [showPass, setShowPass] = useState(false);
+  const [data, setData] = useState({ name: "", email: "", phone: "", password: "" });
+  const [showpassword, setShowpassword] = useState(false);
+  const [error, setError] = useState({ name: "", email: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handelInput = (e) => {
     const { name, value } = e.target;
-    setData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setData((prev) => ({ ...prev, [name]: value }));
+    if (error[name]) setError(prev => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = async (e) => {
+  const handelSubmit = async (e) => {
     e.preventDefault();
-    if (!data.name || !data.email || !data.phone || !data.password) {
-      return toast.error("Please fill all required fields");
-    }
-    if(data.name.length<3)return toast.error("Name must be have 3 character")
-
-    if (data.password !== data.re_pass) {
-      return toast.error("Passwords do not match");
+    
+   
+    const validate = validation(data.name, data.email, data.phone, data.password);
+    
+    if (!validate.status) {
+      setError({ name: validate.name, email: validate.email, phone: validate.phone, password: validate.password });
+      return;
     }
 
     try {
       setLoading(true);
-      const user = {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        password: data.password,
-      };
-      await axios.post("http://localhost:3000/user/register", user);
+      const resp = await fetch("http://localhost:3000/user/register", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "Application/json" },
+        body: JSON.stringify(data)
+      });
 
-      toast.success("Account created successfully!");
-      setData({ name: "", email: "", phone: "", password: "", re_pass: "" });
-      setTimeout(() => navigate("/login"), 2000);
+      if (resp.ok) {
+        toast.success("Account Created");
+        setLoading(false);
+        setTimeout(() => { navigate("/login"); }, 2500);
+      }
+
+      const info = await resp.json();
+      if (resp.status === 409) {
+        toast.error(info.message);
+        setLoading(false);
+        return;
+      }
     } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Registration failed");
-    } finally {
+      toast.error("Register Server error...");
       setLoading(false);
     }
+    
+    // Optional: Reset checkbox on success
+    // setIsChecked(false); 
+    setData({ name: "", email: "", phone: "", password: "" });
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6 pt-28">
-      <Toaster position="top-center" />
-      
-      <div className="bg-white w-full max-w-5xl rounded-3xl shadow-xl overflow-hidden flex flex-col lg:flex-row border border-gray-200">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 lg:p-8 mt-8">
+      <ToastContainer/>
+      <div className="flex w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden min-h-150">
         
-        {/* Left Section */}
-        <div className="hidden lg:flex lg:w-1/2 bg-blue-600 p-16 flex-col justify-between text-white relative overflow-hidden">
-          <div className="absolute top-[-10%] left-[-10%] w-72 h-72 bg-blue-500 rounded-full blur-3xl opacity-50"></div>
+        {/* LEFT SIDE: BRANDING */}
+        <div className="hidden lg:flex w-[40%] bg-indigo-600 p-10 text-white flex-col justify-between relative">
           <div className="relative z-10">
-            <h2 className="text-5xl font-black mb-6 leading-[1.1]">Join the <br/> ChoiceBasket.</h2>
-            <p className="text-blue-100 text-lg font-medium">Create an account to track orders and get personalized recommendations.</p>
+             <Link to={"/"} className="text-sm font-medium opacity-80 cursor-pointer hover:opacity-100">&lt; Home Page</Link>
           </div>
-          <div className="relative z-10">
-            <img 
-              src={registerImg} 
-              alt="Register graphic" 
-              className="w-full h-auto drop-shadow-2xl" 
-            />
+          <div className="relative z-10 mb-50">
+            <h1 className="text-5xl font-bold leading-tight mb-4">Get Started</h1>
+            <p className="text-indigo-100 mb-6">Already have an account?</p>
+            <Link to={"/login"} className="px-8 py-2 border border-white rounded-full hover:bg-white hover:text-indigo-600 transition-all font-medium">
+              Log in
+            </Link>
           </div>
+          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-indigo-500 rounded-full opacity-50"></div>
         </div>
 
-        {/* Right Section: Form */}
-        <div className="w-full lg:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-          <div className="mb-8 text-center lg:text-left">
-            <h1 className="text-3xl font-black text-gray-900 mb-2">Create Account</h1>
-            <p className="text-gray-500 font-medium">Start your shopping journey with us today.</p>
-          </div>
+        {/* RIGHT SIDE: THE FORM */}
+        <div className="w-full lg:w-[60%] p-8 sm:p-12 flex flex-col justify-center relative">
+          <div className="max-w-sm mx-auto w-full">
+            <h2 className="text-2xl font-bold text-indigo-700 text-center mb-8">Create account</h2>
+            
+            <form onSubmit={handelSubmit} className="space-y-4">
+              {/* Email */}
+              <div>
+                <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Email</label>
+                <input
+                  name="email"
+                  type="email"
+                  onChange={handelInput}
+                  value={data.email}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border outline-none transition-all ${error.email ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-indigo-400'}`}
+                />
+                {error.email && <p className="text-red-500 text-[10px] mt-1 font-semibold">{error.email}</p>}
+              </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Input Fields */}
-            {[
-              { label: "Full Name", name: "name", type: "text", icon: <HiOutlineUser />, placeholder: "Enter your full name" },
-              { label: "Email Address", name: "email", type: "email", icon: <HiOutlineMail />, placeholder: "Enter your email" },
-              { label: "Phone Number", name: "phone", type: "number", icon: <HiOutlinePhone />, placeholder: "Enter your phone number" }
-            ].map((field) => (
-              <div key={field.name} className="space-y-2">
-                <label className="text-[12px] font-bold text-gray-700 uppercase tracking-widest ml-1">{field.label}</label>
+              {/* Password */}
+              <div>
+                <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Password</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl">{field.icon}</span>
-                  <input 
-                    name={field.name}
-                    type={field.type}
-                    value={data[field.name]}
-                    onChange={handleChange}
-                    placeholder={field.placeholder}
-                    className="w-full bg-white border border-gray-300 py-3 pl-12 pr-4 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all outline-none font-medium text-gray-800"
+                  <input
+                    name="password"
+                    type={showpassword ? "text" : "password"}
+                    onChange={handelInput}
+                    value={data.password}
+                    className={`w-full mt-1 px-4 py-2.5 rounded-xl border outline-none transition-all ${error.password ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-indigo-400'}`}
                   />
+                  <button type="button" onClick={() => setShowpassword(!showpassword)} className="absolute right-3 top-3.5 text-gray-400">
+                    {showpassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                  </button>
                 </div>
+                {error.password && <p className="text-red-500 text-[10px] mt-1 font-semibold">{error.password}</p>}
               </div>
-            ))}
 
-            {/* Password */}
-            <div className="space-y-2">
-              <label className="text-[12px] font-bold text-gray-700 uppercase tracking-widest ml-1">Password</label>
-              <div className="relative">
-                <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl" />
-                <input 
-                  name="password"
-                  type={showPass ? "text" : "password"}
-                  value={data.password}
-                  onChange={handleChange}
-                  placeholder="Create a password" 
-                  className="w-full bg-white border border-gray-300 py-3 pl-12 pr-12 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all outline-none font-medium text-gray-800"
+              {/* Name */}
+              <div>
+                <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Full Name</label>
+                <input
+                  name="name"
+                  type="text"
+                  onChange={handelInput}
+                  value={data.name}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border outline-none transition-all ${error.name ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-indigo-400'}`}
                 />
-                <button 
-                  type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600"
-                >
-                  {showPass ? <HiOutlineEyeOff size={20} /> : <HiOutlineEye size={20} />}
-                </button>
+                {error.name && <p className="text-red-500 text-[10px] mt-1 font-semibold">{error.name}</p>}
               </div>
-            </div>
 
-            {/* Confirm Password */}
-            <div className="space-y-2">
-              <label className="text-[12px] font-bold text-gray-700 uppercase tracking-widest ml-1">Confirm Password</label>
-              <div className="relative">
-                <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xl" />
-                <input 
-                  name="re_pass"
-                  type="password"
-                  value={data.re_pass}
-                  onChange={handleChange}
-                  placeholder="Confirm your password" 
-                  className="w-full bg-white border border-gray-300 py-3 pl-12 pr-4 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all outline-none font-medium text-gray-800"
+              {/* Phone */}
+              <div>
+                <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">Phone Number</label>
+                <input
+                  name="phone"
+                  type="tel"
+                  onChange={handelInput}
+                  value={data.phone}
+                  className={`w-full mt-1 px-4 py-2.5 rounded-xl border outline-none transition-all ${error.phone ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-indigo-400'}`}
                 />
+                {error.phone && <p className="text-red-500 text-[10px] mt-1 font-semibold">{error.phone}</p>}
               </div>
-            </div>
 
-            <button 
-              disabled={loading}
-              className={`w-full bg-blue-600 hover:bg-gray-900 text-white py-4 rounded-lg font-black text-sm flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95 uppercase tracking-widest mt-6 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
-            >
-              {loading ? (
-                <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <><RiUserAddLine size={20} /> Create Account</>
-              )}
-            </button>
-          </form>
+            
 
-          <div className="mt-8 text-center pt-6 border-t border-gray-200">
-            <p className="text-gray-600 font-bold">
-              Already have an account?{' '}
-              <Link to="/login" className="text-blue-600 hover:text-gray-900 transition-colors">Login Now</Link>
-            </p>
+              {/* Submit */}
+              <button
+                type="submit"
+                className="w-full bg-indigo-600 text-white py-3 rounded-xl text-lg font-bold shadow-lg hover:bg-indigo-700 active:scale-95 transition-all mt-2"
+              >
+                {loading ? "Signing..." : "Sign up"}
+              </button>
+            </form>
           </div>
         </div>
       </div>

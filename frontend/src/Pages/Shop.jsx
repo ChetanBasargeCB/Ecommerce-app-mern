@@ -117,6 +117,7 @@ export default function Shop() {
             </div>
           </div>
         </aside>
+        
 
         {/* Product Grid */}
         <div className="flex-1">

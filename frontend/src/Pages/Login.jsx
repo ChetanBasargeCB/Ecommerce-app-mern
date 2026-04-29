@@ -25,7 +25,13 @@ export default function Login() {
 
     try {
       const user = { email: data.email, password: data.password };
-      const res = await axios.post("http://localhost:3000/user/login", user);
+      const res = await fetch("http://localhost:3000/user/login",{
+        method:"POST",
+        credentials:"include",
+        headers:{
+         "content-type":"Application/json"
+        }
+      });
       toast.success(res.data.message);
       setData({ email: "", password: "" });
 
