@@ -54,8 +54,15 @@ export default function Login() {
         body: JSON.stringify(data),
       });
 
-   
+      const result = await resp.json()
+      console.log(result.message)
+      if (resp.status === 404 || resp.status === 401) {
+        setLoading(false);
+        toast.error(result.message || "Invalid Credentials");
+        return;
+      }
 
+   
       if (resp.ok) {
         setLoading(false);
         toast.success("Login Successful");
@@ -63,12 +70,7 @@ export default function Login() {
           navigate("/")
         }, 3000);;
       }
-
-      if (resp.status === 404 || resp.status === 401) {
-        setLoading(false);
-        toast.error(result.message || "Invalid Credentials");
-        return;
-      }
+     
     } catch (err) {
       setLoading(false);
       toast.error("Login Error");

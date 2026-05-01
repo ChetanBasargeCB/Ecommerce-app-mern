@@ -1,8 +1,9 @@
 import { IoSearchOutline, IoChevronDownOutline } from "react-icons/io5";
 import { IoMdContact } from "react-icons/io"; // Fixed: IoMd icons are in /io
 import { GrCart } from "react-icons/gr";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -12,6 +13,13 @@ export default function Navbar() {
     { name: "Shop", path: "/shop" },
     { name: "Hot Deals", path: "/deals" },
   ];
+
+  // dyanamic Cart count code  
+  // (getting cartItems array)
+  const cartItems = useSelector((state) => state.cart.cartItems);
+
+  const totalQty = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+ 
 
   return (
     <nav className="flex justify-center items-center h-16 border-b border-gray-100 bg-white/80 backdrop-blur-md fixed top-0 w-full z-50 shadow-sm">
@@ -65,7 +73,20 @@ export default function Navbar() {
         </div>
 
         {/* Action Items */}
-        <div className="flex items-center gap-8 ml-6">
+        <div className="flex items-center gap-8 ml-4">
+           {/* Cart Section */}
+          <div className="relative flex items-center gap-2 cursor-pointer group">
+            <div className="relative p-2 rounded-full group-hover:bg-blue-50 transition-colors">
+              <Link to={"/cart"}>
+              <GrCart className="text-xl text-gray-700 group-hover:text-blue-600" />
+              <span className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-white">
+                {totalQty}
+              </span>
+              </Link>
+            </div>
+          
+          </div>
+
           {/* Account Dropdown on Hover */}
           <div className="relative group py-4">
             <div className="flex items-center gap-1.5 cursor-pointer">
@@ -75,6 +96,7 @@ export default function Navbar() {
               </span>
               <IoChevronDownOutline className="text-xs text-gray-400 group-hover:rotate-180 transition-transform duration-200" />
             </div>
+
 
             {/* Dropdown Menu */}
             <div className="absolute right-0 top-full w-40 bg-white border border-gray-100 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
@@ -89,18 +111,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Cart Section */}
-          <div className="relative flex items-center gap-2 cursor-pointer group">
-            <div className="relative p-2 rounded-full group-hover:bg-blue-50 transition-colors">
-              <GrCart className="text-xl text-gray-700 group-hover:text-blue-600" />
-              <span className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-1.5 rounded-full border-2 border-white">
-                2
-              </span>
-            </div>
-            <span className="hidden sm:inline text-sm font-semibold text-gray-600 group-hover:text-blue-600">
-              Cart
-            </span>
-          </div>
+         
         </div>
       </div>
     </nav>

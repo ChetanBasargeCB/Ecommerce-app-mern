@@ -11,6 +11,7 @@ import Deals from "./Pages/Deals";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import Profile from "./Pages/Profile";
+import Cart from "./Pages/Cart";
 
 
 function App() {
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
       {
         path:"profile",
         element:<Profile/>
+      },
+      {
+        path:"/cart",
+        element:<Cart/>
       }
     ],
   },

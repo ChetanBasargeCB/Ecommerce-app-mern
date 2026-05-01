@@ -16,6 +16,9 @@ import img1 from '../assets/img1.jpg';
 import img2 from '../assets/img2.jpg';
 import img3 from '../assets/img3.jpg';
 import img4 from '../assets/img4.jpg';
+import { useDispatch } from "react-redux";
+import { addtoCart } from "../Redux/CartSlice";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Home() {
   const [products, setProducts] = useState(null);
@@ -23,6 +26,9 @@ export default function Home() {
   const totalpage = 10;
   const limit = 8;
   const carouselImages = [img1, img2, img3, img4];
+
+  // Add to cart Logic
+  const dispatch  = useDispatch()
 
   // Combined Product Fetching with Fixes
   useEffect(() => {
@@ -48,6 +54,22 @@ export default function Home() {
     fetchProduct();
   }, [page]);
 
+
+  // add to cart action calling logic 
+const handleAddToCart = (item) => {
+   
+    dispatch(addtoCart(item)); 
+    
+    // 2. Toast notification with "info" (blue) 
+   toast.dark(`🛍️ ${item.title} added!`, {
+    position: "top-left",
+    autoClose: 2000,
+    pauseOnHover: false,
+    closeOnClick: true,
+    // No "colored" theme needed, .dark handles it
+  });
+  };
+
   const SkeletonCard = () => (
     <div className="bg-white rounded-2xl p-5 border border-gray-100 flex flex-col h-full">
       <Skeleton className="h-52 w-full rounded-xl mb-5" />
@@ -61,6 +83,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 pt-16 font-sans">
       <Navbar />
 
+    <ToastContainer/>
       {/* --- Carousel Section --- */}
       <div className="w-full max-w-7xl mx-auto px-4 mt-6 h-50 md:h-100">
         <Swiper
@@ -109,7 +132,7 @@ export default function Home() {
                       </span>
                       <span className="text-xl font-black text-gray-900">${item.price}</span>
                     </div>
-                    <button className="p-3 bg-blue-600 hover:bg-black text-white rounded-xl transition-all shadow-lg shadow-blue-100 active:scale-95">
+                    <button onClick={()=>handleAddToCart(item)} className="p-3 bg-blue-600 hover:bg-black text-white rounded-xl transition-all shadow-lg shadow-blue-100 active:scale-95">
                       <FiShoppingCart size={20} />
                     </button>
                   </div>
